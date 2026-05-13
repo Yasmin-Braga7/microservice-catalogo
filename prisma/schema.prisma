@@ -8,17 +8,18 @@ datasource db {
 }
 
 model Livro {
-  id            Int          @id @default(autoincrement()) @map("livro_id")
-  titulo        String       @map("livro_titulo") @db.VarChar(255)
-  isbn          String       @unique(map: "livro_isbn") @map("livro_isbn") @db.VarChar(13)
-  editora       String?      @map("livro_editora") @db.VarChar(100)
-  anoPublicacao Int?         @map("livro_ano_publicacao")
-  sinopse       String?      @map("livro_sinopse") @db.VarChar(100)
-  numeroPaginas Int?         @map("livro_numero_paginas")
-  idioma        String?      @map("livro_idioma") @db.VarChar(50)
-  status        Int?         @map("livro_status")
+  id            Int            @id @default(autoincrement()) @map("livro_id")
+  titulo        String         @map("livro_titulo") @db.VarChar(255)
+  isbn          String         @unique(map: "livro_isbn") @map("livro_isbn") @db.VarChar(13)
+  editora       String?        @map("livro_editora") @db.VarChar(100)
+  anoPublicacao Int?           @map("livro_ano_publicacao")
+  sinopse       String?        @map("livro_sinopse") @db.VarChar(100)
+  numeroPaginas Int?           @map("livro_numero_paginas")
+  idioma        String?        @map("livro_idioma") @db.VarChar(50)
+  status        Int?           @map("livro_status")
   exemplares    Exemplar[]
   autores       LivroAutor[]
+  livro_genero  livro_genero[]
 
   @@map("livro")
 }
@@ -36,19 +37,22 @@ model Autor {
 }
 
 model Genero {
-  id        Int     @id @default(autoincrement()) @map("genero_id")
-  nome      String  @unique(map: "genero_nome") @map("genero_nome") @db.VarChar(100)
-  descricao String? @map("genero_descricao") @db.VarChar(100)
+  id            Int            @id @default(autoincrement()) @map("genero_id")
+  nome          String         @unique(map: "genero_nome") @map("genero_nome") @db.VarChar(100)
+  descricao     String?        @map("genero_descricao") @db.VarChar(100)
+  genero_status Int?
+  livro_genero  livro_genero[]
 
   @@map("genero")
 }
 
 model LivroAutor {
-  id      Int    @id @default(autoincrement()) @map("livro_autor_id")
-  livroId Int?   @map("livro_id")
-  autorId Int?   @map("autor_id")
-  livro   Livro? @relation(fields: [livroId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk1")
-  autor   Autor? @relation(fields: [autorId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk2")
+  id                 Int    @id @default(autoincrement()) @map("livro_autor_id")
+  livroId            Int?   @map("livro_id")
+  autorId            Int?   @map("autor_id")
+  livro_autor_status Int?
+  livro              Livro? @relation(fields: [livroId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk1")
+  autor              Autor? @relation(fields: [autorId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk2")
 
   @@index([autorId], map: "autor_id")
   @@index([livroId], map: "livro_id")
@@ -66,6 +70,17 @@ model Exemplar {
 
   @@index([livroId], map: "fk_exemplar_livro1_idx")
   @@map("exemplar")
+}
+
+model livro_genero {
+  livro_genero_id Int     @id @default(autoincrement())
+  livro_id        Int?
+  genero_id       Int?
+  genero          Genero? @relation(fields: [genero_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_livro_genero_genero")
+  livro           Livro?  @relation(fields: [livro_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_livro_genero_livro")
+
+  @@index([genero_id], map: "fk_livro_genero_genero")
+  @@index([livro_id], map: "fk_livro_genero_livro")
 }
 
 enum exemplar_exemplar_condicao {
