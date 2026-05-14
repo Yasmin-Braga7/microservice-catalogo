@@ -3,7 +3,6 @@
  */
 const amqplib = require('amqplib');
 
-const RABBITMQ_URL = process.env.RABBITMQ_URL;
 const RECONNECT_DELAY_MS = Number(process.env.RABBITMQ_RECONNECT_DELAY) || 5000;
 const EXCHANGE = 'biblioteca';
 const EXCHANGE_TYPE = 'topic';
@@ -15,6 +14,8 @@ let connecting = false;
 async function connect() {
     if (connecting) return;
     connecting = true;
+
+    const RABBITMQ_URL = process.env.RABBITMQ_URL;
 
     try {
         console.log('[RabbitMQ] Conectando em', RABBITMQ_URL.replace(/:\/\/.*@/, '://***@'));

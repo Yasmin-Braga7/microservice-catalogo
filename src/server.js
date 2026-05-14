@@ -1,19 +1,23 @@
 const fastify = require('fastify')({ logger: true });
 require('dotenv').config();
-const rabbitmq = require('./config/rabbitmq');
-fastify.register(require('./plugins/prisma'));
 
-fastify.get('/health', async (request, reply) => {
-    return { status: 'ok', servico: 'catalogo' };
-});
-
-fastify.register(require('./routes/livro'), { prefix: '/biblioteca/catalogo/livros' });
-fastify.register(require('./routes/exemplar'), { prefix: '/biblioteca/catalogo/exemplares' });
-fastify.register(require('./routes/autor'), { prefix: '/biblioteca/catalogo/autores' });
-fastify.register(require('./routes/genero'), { prefix: '/biblioteca/catalogo/generos' });
+const { carregarSenhasSeguras } = require('./config/infisical');
 
 const start = async () => {
     try {
+        await carregarSenhasSeguras();
+
+        fastify.register(require('./plugins/prisma'));
+
+        fastify.get('/health', async (request, reply) => {
+            return { status: 'ok', servico: 'catalogo' };
+        });
+
+        fastify.register(require('./routes/livro'), { prefix: '/biblioteca/catalogo/livros' });
+        fastify.register(require('./routes/exemplar'), { prefix: '/biblioteca/catalogo/exemplares' });
+        fastify.register(require('./routes/autor'), { prefix: '/biblioteca/catalogo/autores' });
+        fastify.register(require('./routes/genero'), { prefix: '/biblioteca/catalogo/generos' });
+
         await rabbitmq.connect();
 
         await fastify.listen({ port: 9502, host: '0.0.0.0' });
