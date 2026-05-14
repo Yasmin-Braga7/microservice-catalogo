@@ -3,6 +3,9 @@ require('dotenv').config();
 const rabbitmq = require('./config/rabbitmq');
 fastify.register(require('./plugins/prisma'));
 
+fastify.get('/health', async (request, reply) => {
+    return { status: 'ok', servico: 'catalogo' };
+});
 
 fastify.register(require('./routes/livro'), { prefix: '/biblioteca/catalogo/livros' });
 fastify.register(require('./routes/exemplar'), { prefix: '/biblioteca/catalogo/exemplares' });

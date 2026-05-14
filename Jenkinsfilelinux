@@ -16,17 +16,15 @@ pipeline {
 
         stage('Instalar Dependências') {
             steps {
-                bat 'npm install'
-                bat 'npx prisma generate'
+                sh 'npm install'
+                sh 'npx prisma generate'
             }
         }
 
         stage('Fazer Deploy com Compose') {
             steps {
                 script {
-                    env.PATH = "C:\\Program Files\\Docker\\Docker\\resources\\bin;${env.PATH}"
-
-                    bat "docker compose up -d --build"
+                    sh "docker compose up -d --build"
                 }
             }
         }
@@ -34,10 +32,10 @@ pipeline {
 
     post {
         success {
-            echo 'Deploy do Catálogo realizado com sucesso no Yacht (Ambiente Windows)!'
+            echo 'Deploy do Catálogo realizado com sucesso no Yacht (Ambiente Linux)!'
         }
         failure {
-            echo 'Houve um erro durante o deploy do Catálogo no Windows.'
+            echo 'Houve um erro durante o deploy do Catálogo no Linux.'
         }
     }
 }
