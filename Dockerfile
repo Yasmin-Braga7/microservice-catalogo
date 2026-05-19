@@ -1,33 +1,42 @@
 # ─── Estágio de build ────────────────────────────────────────────────────────
-FROM node:22-alpine AS builder
+FROM node:22-slim AS builder
 
 WORKDIR /app
 
-# Instala dependências (apenas arquivos de manifest primeiro para cache)
+# Instala OpenSSL necessário para Prisma
+RUN apt-get update && apt-get install -y openssl
+
+# Copia manifests primeiro (cache)
 COPY package*.json ./
+
+# Instala dependências
 RUN npm ci --omit=dev
 
-# Copia o restante do código
+# Copia código
 COPY . .
 
-# Gera o Prisma Client
+# Gera Prisma Client
 RUN npx prisma generate
 
-# ─── Imagem final (menor) ─────────────────────────────────────────────────────
-FROM node:22-alpine
+# ─── Imagem final ────────────────────────────────────────────────────────────
+FROM node:22-slim
 
 WORKDIR /app
 
-# Copia artefatos do estágio de build
+# OpenSSL runtime
+RUN apt-get update && apt-get install -y openssl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copia arquivos do build
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/src          ./src
-COPY --from=builder /app/prisma       ./prisma
+COPY --from=builder /app/src ./src
+COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/package.json ./package.json
 
-# Porta exposta para o Catálogo
+# Porta
 EXPOSE 9502
 
-# Health check interno do Docker apontando para a porta 9502
+# Healthcheck
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
   CMD wget -qO- http://localhost:9502/health || exit 1
 
