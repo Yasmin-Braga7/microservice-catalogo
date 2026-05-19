@@ -1,41 +1,74 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_BUILDKIT = '1'
+    }
+
     stages {
+
         stage('Verificar Repositório') {
             steps {
-                checkout([$class: 'GitSCM', 
-                    branches: [[name: '*/main']], 
-                    doGenerateSubmoduleConfigurations: false, 
-                    extensions: [], 
-                    submoduleCfg: [], 
-                    userRemoteConfigs: [[url: 'https://github.com/Yasmin-Braga7/microservice-catalogo.git']]
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/Yasmin-Braga7/microservice-catalogo.git'
+                    ]]
                 ])
             }
         }
 
         stage('Instalar Dependências') {
             steps {
-                sh 'npm install'
-                sh 'npx prisma generate'
+                sh '''
+                    rm -rf node_modules
+                    rm -rf package-lock.json
+
+                    npm install
+                    npx prisma generate
+                '''
             }
         }
 
-        stage('Fazer Deploy com Compose') {
+        stage('Build Docker') {
             steps {
-                script {
-                    sh "docker compose up -d --build"
-                }
+                sh '''
+                    docker compose build --no-cache
+                '''
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                    docker compose down
+                    docker compose up -d
+                '''
+            }
+        }
+
+        stage('Verificar Containers') {
+            steps {
+                sh 'docker ps'
             }
         }
     }
 
     post {
         success {
-            echo 'Deploy do Catálogo realizado com sucesso no Yacht (Ambiente Linux)!'
+            echo 'Deploy do Catálogo realizado com sucesso no Yacht (Linux)!'
         }
+
         failure {
-            echo 'Houve um erro durante o deploy do Catálogo no Linux.'
+            echo 'Houve um erro durante o deploy do Catálogo.'
+        }
+
+        always {
+            sh 'docker image prune -f || true'
         }
     }
 }
