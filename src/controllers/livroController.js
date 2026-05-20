@@ -2,7 +2,7 @@ const livroService = require('../services/livroService');
 
 async function listarLivros(request, reply) {
     try {
-        const livros = await livroService.listarLivros();
+        const livros = await livroService.listarLivros(request.query);
         return reply.status(200).send(livros);
     } catch (error) {
         return reply.status(500).send({ erro: 'Erro ao listar livros.' });

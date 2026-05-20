@@ -2,7 +2,7 @@ const exemplarService = require('../services/exemplarService');
 
 async function listarExemplares(request, reply) {
     try {
-        const exemplares = await exemplarService.listarExemplares();
+        const exemplares = await exemplarService.listarExemplares(request.query);
         return reply.status(200).send(exemplares);
     } catch (error) {
         return reply.status(500).send({ erro: 'Erro ao listar exemplares.' });

@@ -2,7 +2,7 @@ const generoService = require('../services/generoService');
 
 async function listarGeneros(request, reply) {
     try {
-        const generos = await generoService.listarGeneros();
+        const generos = await generoService.listarGeneros(request.query);
         return reply.status(200).send(generos);
     } catch (error) {
         return reply.status(500).send({ erro: 'Erro ao listar os géneros.' });

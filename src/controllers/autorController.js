@@ -2,7 +2,7 @@ const autorService = require('../services/autorService');
 
 async function listarAutores(request, reply) {
     try {
-        const autores = await autorService.listarAutores();
+        const autores = await autorService.listarAutores(request.query);
         return reply.status(200).send(autores);
     } catch (error) {
         return reply.status(500).send({ erro: 'Erro ao listar os autores.' });

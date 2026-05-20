@@ -2,8 +2,14 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const rabbitmq = require('../config/rabbitmq');
 
-async function listarGeneros() {
-    return await prisma.genero.findMany();
+async function listarGeneros(filtros = {}) {
+    const where = {};
+
+    if (filtros.status !== undefined){
+        where.status = Number(filtros.status);
+    }
+
+    return await prisma.genero.findMany({ where });
 }
 
 async function buscarGeneroPorId(id) {

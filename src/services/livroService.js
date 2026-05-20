@@ -1,9 +1,17 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const rabbitmq = require('../config/rabbitmq');
+const prisma = require('../config/prisma');
 
-async function listarLivros() {
+async function listarLivros(filtros = {}) {
+    const where = {};
+
+    if (filtros.status !== underfined){
+        where.status = Number(filtros.status);
+    }
+
     return await prisma.livro.findMany({
+        where,
         // Atualizado para trazer os dados reais do Autor e Gênero através da tabela de ligação
         include: {
             autores: { include: { autor: true } },

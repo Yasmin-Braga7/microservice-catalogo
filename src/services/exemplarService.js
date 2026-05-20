@@ -2,8 +2,15 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const rabbitmq = require('../config/rabbitmq');
 
-async function listarExemplares() {
+async function listarExemplares(filtros = {}) {
+    const where = {};
+
+    if (filtros.disponibilidade !== undefined) {
+        where.disponibilidade = filtros.disponibilidade;
+    }
+
     return await prisma.exemplar.findMany({
+        where,
         include: { livro: true }
     });
 }

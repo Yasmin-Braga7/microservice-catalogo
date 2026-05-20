@@ -2,8 +2,14 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const rabbitmq = require('../config/rabbitmq');
 
-async function listarAutores() {
-    return await prisma.autor.findMany();
+async function listarAutores(filtros = {}) {
+    const where = {};
+
+    if (filtros.status !== undefined) {
+        where.status = Number(filtros.status);
+    }
+
+    return await prisma.autor.findMany({ where });
 }
 
 async function buscarAutorPorId(id) {
