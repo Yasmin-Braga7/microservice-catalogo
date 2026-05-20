@@ -1,12 +1,11 @@
 const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
 const rabbitmq = require('../config/rabbitmq');
 const prisma = require('../config/prisma');
 
 async function listarLivros(filtros = {}) {
     const where = {};
 
-    if (filtros.status !== underfined){
+    if (filtros.status !== undefined){
         where.status = Number(filtros.status);
     }
 
